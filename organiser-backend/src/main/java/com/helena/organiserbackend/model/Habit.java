@@ -1,6 +1,6 @@
 package com.helena.organiserbackend.model;
 
-public class Habits {
+public class Habit {
 
     private int id;
     private int user_id;
@@ -11,7 +11,7 @@ public class Habits {
     private String category;
     private String date_set;
 
-    public Habits(int id, int user_id, int goal_id, int project_id, String title, String description, String category, String date_set) {
+    public Habit(int id, int user_id, int goal_id, int project_id, String title, String description, String category, String date_set) {
         this.id = id;
         this.user_id = user_id;
         this.goal_id = goal_id;
