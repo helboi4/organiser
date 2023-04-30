@@ -14,9 +14,10 @@ public class Event {
     private String[] reminders;
     private String[] attendees;
     private String link;
+    private String platform;
     private String location;
 
-    public Event(int id, int user_id, int goal_id, int project_id, String title, String description, String category, String start_datetime, String end_datetime, String[] reminders, String[] attendees, String link, String location) {
+    public Event(int id, int user_id, int goal_id, int project_id, String title, String description, String category, String start_datetime, String end_datetime, String[] reminders, String[] attendees, String link, String platform, String location) {
         this.id = id;
         this.user_id = user_id;
         this.goal_id = goal_id;
@@ -29,6 +30,7 @@ public class Event {
         this.reminders = reminders;
         this.attendees = attendees;
         this.link = link;
+        this.platform = platform;
         this.location = location;
     }
 
@@ -130,6 +132,14 @@ public class Event {
 
     public String getLocation() {
         return location;
+    }
+
+    public String getPlatform() {
+        return platform;
+    }
+
+    public void setPlatform(String platform) {
+        this.platform = platform;
     }
 
     public void setLocation(String location) {
