@@ -73,6 +73,8 @@ end_datetime TIMESTAMP NOT NULL,
 description TEXT,
 reminders TIMESTAMP[],
 attendees VARCHAR(255)[],
+platform VARCHAR(255),
+reccurrence VARCHAR(255),
 link VARCHAR(255),
 location VARCHAR(255)
 );

@@ -15,9 +15,10 @@ public class Event {
     private String[] attendees;
     private String link;
     private String platform;
+    private String reccurrence;
     private String location;
 
-    public Event(int id, int user_id, int goal_id, int project_id, String title, String description, String category, String start_datetime, String end_datetime, String[] reminders, String[] attendees, String link, String platform, String location) {
+    public Event(int id, int user_id, int goal_id, int project_id, String title, String description, String category, String start_datetime, String end_datetime, String[] reminders, String[] attendees, String link, String platform, String recurrence, String location) {
         this.id = id;
         this.user_id = user_id;
         this.goal_id = goal_id;
@@ -31,6 +32,7 @@ public class Event {
         this.attendees = attendees;
         this.link = link;
         this.platform = platform;
+        this.reccurrence = reccurrence;
         this.location = location;
     }
 
@@ -132,6 +134,14 @@ public class Event {
 
     public String getLocation() {
         return location;
+    }
+
+    public String getReccurrence() {
+        return reccurrence;
+    }
+
+    public void setReccurrence(String reccurrence) {
+        this.reccurrence = reccurrence;
     }
 
     public String getPlatform() {
