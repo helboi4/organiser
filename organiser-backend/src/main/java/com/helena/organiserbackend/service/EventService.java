@@ -102,7 +102,6 @@ public class EventService {
             return response;
         }
 
-        //TODO: https://developers.google.com/calendar/api/quickstart/java
         com.google.api.services.calendar.model.Event googleEvent = new com.google.api.services.calendar.model.Event()
                 .setSummary(event.getTitle())
                 .setLocation(event.getLocation())
