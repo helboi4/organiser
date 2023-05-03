@@ -15,7 +15,7 @@ Proposed features:
 6. Some reminder notifications
 
 Current status:
-I have initilised a Spring application using SpringInitializer
-I have created migration files for the PostgresQL database.
-I have created some boilerplate for most classes needed for basic API interaction with the database.
-I have attempted to implement logic for posting to Google Calendar (needs a lot of adjusting).
+- I have initilised a Spring application using SpringInitializer
+- I have created migration files for the PostgresQL database.
+- I have created some boilerplate for most classes needed for basic API interaction with the database.
+- I have attempted to implement logic for posting to Google Calendar (needs a lot of adjusting).
