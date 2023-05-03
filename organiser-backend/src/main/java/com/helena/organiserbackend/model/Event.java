@@ -1,4 +1,5 @@
 package com.helena.organiserbackend.model;
+import com.helena.organiserbackend.model.Attendee;
 
 public class Event {
 
@@ -12,13 +13,13 @@ public class Event {
     private String start_datetime;
     private String end_datetime;
     private String[] reminders;
-    private String[] attendees;
+    private Attendee[] attendees;
     private String link;
     private String platform;
-    private String reccurrence;
+    private String[] recurrence;
     private String location;
 
-    public Event(int id, int user_id, int goal_id, int project_id, String title, String description, String category, String start_datetime, String end_datetime, String[] reminders, String[] attendees, String link, String platform, String recurrence, String location) {
+    public Event(int id, int user_id, int goal_id, int project_id, String title, String description, String category, String start_datetime, String end_datetime, String[] reminders, Attendee[] attendees, String link, String platform, String[] recurrence, String location) {
         this.id = id;
         this.user_id = user_id;
         this.goal_id = goal_id;
@@ -32,7 +33,7 @@ public class Event {
         this.attendees = attendees;
         this.link = link;
         this.platform = platform;
-        this.reccurrence = reccurrence;
+        this.recurrence = recurrence;
         this.location = location;
     }
 
@@ -116,11 +117,11 @@ public class Event {
         this.reminders = reminders;
     }
 
-    public String[] getAttendees() {
+    public Attendee[] getAttendees() {
         return attendees;
     }
 
-    public void setAttendees(String[] attendees) {
+    public void setAttendees(Attendee[] attendees) {
         this.attendees = attendees;
     }
 
@@ -136,12 +137,12 @@ public class Event {
         return location;
     }
 
-    public String getReccurrence() {
-        return reccurrence;
+    public String[] getRecurrence() {
+        return recurrence;
     }
 
-    public void setReccurrence(String reccurrence) {
-        this.reccurrence = reccurrence;
+    public void setRecurrence(String[] recurrence) {
+        this.recurrence = recurrence;
     }
 
     public String getPlatform() {

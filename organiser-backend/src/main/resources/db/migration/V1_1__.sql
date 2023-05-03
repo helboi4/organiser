@@ -72,9 +72,9 @@ start_datetime TIMESTAMP NOT NULL,
 end_datetime TIMESTAMP NOT NULL,
 description TEXT,
 reminders TIMESTAMP[],
-attendees VARCHAR(255)[],
+attendees hstore[],
 platform VARCHAR(255),
-reccurrence VARCHAR(255),
+reccurrence VARCHAR(255)[],
 link VARCHAR(255),
 location VARCHAR(255)
 );

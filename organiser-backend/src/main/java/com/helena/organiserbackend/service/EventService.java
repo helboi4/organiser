@@ -5,10 +5,16 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
+import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.model.EventAttendee;
+import com.google.api.services.calendar.model.EventDateTime;
 import com.google.gson.Gson;
 import com.helena.organiserbackend.DAO.EventDAO;
+import com.helena.organiserbackend.model.Attendee;
 import com.helena.organiserbackend.model.Event;
 import org.apache.catalina.valves.JsonAccessLogValve;
 import org.apache.logging.log4j.message.Message;
@@ -84,36 +90,48 @@ public class EventService {
     }
 
     private HttpResponse<String> postToGoogle(Event event) throws Exception{
-        //TODO: Edit the attendees field to reflect Google's format
-        String json = MessageFormat.format(
-        """
-                {
-                    "summary": "{0}",
-                    "location": "{1}",
-                    "description": "{2}",
-                    "start": {
-                        "dateTime": "{3}",
-                        "timeZone": "London"
-                    },
-                    "end": {
-                        "dateTime": "{4}",
-                        "timeZone": "London"
-                    },
-                    "recurrence": [
-                        "{5}"
-                    ],
-                    "attendees": {6},
-                    "reminders": {7}
-        
+        //TODO: https://developers.google.com/calendar/api/quickstart/java
+        com.google.api.services.calendar.model.Event googleEvent = new com.google.api.services.calendar.model.Event()
+                .setSummary(event.getTitle())
+                .setLocation(event.getLocation())
+                .setDescription(event.getDescription());
+        DateTime startDateTime = new DateTime(event.getStart_datetime());
+        EventDateTime start = new EventDateTime()
+                .setDateTime(startDateTime)
+                .setTimeZone("Europe/London");
+        googleEvent.setStart(start);
+
+        DateTime endDateTime = new DateTime(event.getEnd_datetime());
+        EventDateTime end = new EventDateTime()
+                .setDateTime(endDateTime)
+                .setTimeZone("Europe/London");
+        googleEvent.setEnd(end);
+
+        String[] recurrence = event.getRecurrence();
+        if (recurrence != null) {
+            googleEvent.setRecurrence(List.of(recurrence));
+        }
+
+        Attendee[] attendees = event.getAttendees();
+        List<EventAttendee> eventAttendees = Arrays.stream(attendees).map(
+                attendee -> {
+                    EventAttendee eventAttendee = new EventAttendee();
+                    eventAttendee.setEmail(attendee.getEmail());
+                    eventAttendee.setDisplayName(attendee.getDisplayName());
+                    eventAttendee.setComment(attendee.getComment());
+                    eventAttendee.setAdditionalGuests(attendee.getAdditionalGuests());
+                    eventAttendee.setOptional(attendee.getOptional());
+                    eventAttendee.setOrganizer(attendee.getOrganiser());
+                    eventAttendee.setResource(attendee.getResource());
+                    eventAttendee.setResponseStatus(attendee.getResponseStatus());
+                    eventAttendee.setSelf(attendee.getSelf());
+                    return eventAttendee;
                 }
-                """, event.getTitle(), event.getLocation(), event.getDescription(), event.getStart_datetime(), event.getEnd_datetime(), event.getReccurrence(), event.getAttendees(), event.getReminders());
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                                         .uri(URI.create("https://www.googleapis.com/calendar/v3/calendars/calendarId/events"))
-                                         .POST(HttpRequest.BodyPublishers.ofString(json))
-                                         .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        return response;
+        ).toList();
+        googleEvent.setAttendees(eventAttendees);
+
+
+
     }
 
     private HttpResponse<String> postToOutlook(Event event) throws Exception{
@@ -142,7 +160,7 @@ public class EventService {
                     "Reminders": {7}
         
                 }
-                """, event.getTitle(), event.getLocation(), event.getDescription(), event.getStart_datetime(), event.getEnd_datetime(), event.getReccurrence(), event.getAttendees(), event.getReminders());
+                """, event.getTitle(), event.getLocation(), event.getDescription(), event.getStart_datetime(), event.getEnd_datetime(), event.getRecurrence(), event.getAttendees(), event.getReminders());
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                                          .uri(URI.create("https://outlook.office.com/api/v2.0/me/events"))
