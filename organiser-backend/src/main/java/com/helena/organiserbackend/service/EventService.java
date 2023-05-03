@@ -7,24 +7,31 @@ import java.net.http.HttpResponse;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+
+import javax.swing.text.html.parser.Entity;
 
 import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.EventAttendee;
 import com.google.api.services.calendar.model.EventDateTime;
-import com.google.gson.Gson;
 import com.helena.organiserbackend.DAO.EventDAO;
-import com.helena.organiserbackend.model.Attendee;
+import com.helena.organiserbackend.GoogleTools.GoogleCalendarService;
 import com.helena.organiserbackend.model.Event;
-import org.apache.catalina.valves.JsonAccessLogValve;
-import org.apache.logging.log4j.message.Message;
+import org.apache.http.HttpResponseFactory;
+import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
+import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.message.BasicStatusLine;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EventService {
 
     private EventDAO eventDAO;
+    @Autowired
+    private Calendar googleCalendar = GoogleCalendarService.setupGoogle();
 
     @Autowired
     public EventService(EventDAO eventDAO) {
@@ -67,8 +74,7 @@ public class EventService {
             case "Google":
                 //post to google
                 try {
-                    HttpResponse<String> response = postToGoogle(event);
-                    System.out.println(response.body());
+                    ResponseEntity<?> response = postToGoogle(event);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -89,7 +95,13 @@ public class EventService {
 
     }
 
-    private HttpResponse<String> postToGoogle(Event event) throws Exception{
+    private ResponseEntity<?> postToGoogle(Event event) throws Exception{
+
+        if(googleCalendar == null){
+            ResponseEntity<?> response = ResponseEntity.internalServerError().body("Google Calendar not set up");
+            return response;
+        }
+
         //TODO: https://developers.google.com/calendar/api/quickstart/java
         com.google.api.services.calendar.model.Event googleEvent = new com.google.api.services.calendar.model.Event()
                 .setSummary(event.getTitle())
@@ -112,25 +124,19 @@ public class EventService {
             googleEvent.setRecurrence(List.of(recurrence));
         }
 
-        Attendee[] attendees = event.getAttendees();
-        List<EventAttendee> eventAttendees = Arrays.stream(attendees).map(
-                attendee -> {
-                    EventAttendee eventAttendee = new EventAttendee();
-                    eventAttendee.setEmail(attendee.getEmail());
-                    eventAttendee.setDisplayName(attendee.getDisplayName());
-                    eventAttendee.setComment(attendee.getComment());
-                    eventAttendee.setAdditionalGuests(attendee.getAdditionalGuests());
-                    eventAttendee.setOptional(attendee.getOptional());
-                    eventAttendee.setOrganizer(attendee.getOrganiser());
-                    eventAttendee.setResource(attendee.getResource());
-                    eventAttendee.setResponseStatus(attendee.getResponseStatus());
-                    eventAttendee.setSelf(attendee.getSelf());
-                    return eventAttendee;
-                }
-        ).toList();
-        googleEvent.setAttendees(eventAttendees);
+        EventAttendee[] attendees = event.getAttendees();
+        if (attendees != null) {
+            googleEvent.setAttendees(Arrays.asList(attendees));
+        }
 
+        com.google.api.services.calendar.model.Event.Reminders reminders =
+                new com.google.api.services.calendar.model.Event.Reminders()
+                .setUseDefault(false)
+                .setOverrides(Arrays.asList(event.getReminders()));
+        googleEvent.setReminders(reminders);
 
+        googleEvent = googleCalendar.events().insert("primary", googleEvent).execute();
+        return ResponseEntity.ok("Successfully posted to Google: " + googleEvent.getHtmlLink());
 
     }
 

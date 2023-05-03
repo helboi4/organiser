@@ -1,5 +1,7 @@
 package com.helena.organiserbackend.model;
-import com.helena.organiserbackend.model.Attendee;
+
+import com.google.api.services.calendar.model.EventAttendee;
+import com.google.api.services.calendar.model.EventReminder;
 
 public class Event {
 
@@ -12,14 +14,14 @@ public class Event {
     private String category;
     private String start_datetime;
     private String end_datetime;
-    private String[] reminders;
-    private Attendee[] attendees;
+    private EventReminder[] reminders;
+    private EventAttendee[] attendees;
     private String link;
     private String platform;
     private String[] recurrence;
     private String location;
 
-    public Event(int id, int user_id, int goal_id, int project_id, String title, String description, String category, String start_datetime, String end_datetime, String[] reminders, Attendee[] attendees, String link, String platform, String[] recurrence, String location) {
+    public Event(int id, int user_id, int goal_id, int project_id, String title, String description, String category, String start_datetime, String end_datetime, EventReminder[] reminders, EventAttendee[] attendees, String link, String platform, String[] recurrence, String location) {
         this.id = id;
         this.user_id = user_id;
         this.goal_id = goal_id;
@@ -109,19 +111,19 @@ public class Event {
         this.end_datetime = end_datetime;
     }
 
-    public String[] getReminders() {
+    public EventReminder[] getReminders() {
         return reminders;
     }
 
-    public void setReminders(String[] reminders) {
+    public void setReminders(EventReminder[] reminders) {
         this.reminders = reminders;
     }
 
-    public Attendee[] getAttendees() {
+    public EventAttendee[] getAttendees() {
         return attendees;
     }
 
-    public void setAttendees(Attendee[] attendees) {
+    public void setAttendees(EventAttendee[] attendees) {
         this.attendees = attendees;
     }
 
