@@ -23,7 +23,12 @@ public class EventDataAccessService implements EventDAO {
     public Event getEventbyId(int id) {
         //sql query to get event by id
         String sql = """
-                SELECT * FROM events WHERE id = ?
+                SELECT e.*, ARRAY_AGG(r.*) AS reminder_objects, ARRAY_AGG(a.*) AS attendee_objects
+                FROM events e
+                LEFT JOIN reminders r ON r.event_id = e.id
+                LEFT JOIN attendees a ON a.event_id = e.id
+                WHERE e.id = ?
+                GROUP BY e.id
                 """;
         return jdbcTemplate.queryForObject(sql, new Object[]{id}, new EventRowMapper());
     }

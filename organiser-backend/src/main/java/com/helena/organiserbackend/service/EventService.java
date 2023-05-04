@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 public class EventService {
 
     private EventDAO eventDAO;
-    @Autowired
+
     private Calendar googleCalendar = GoogleCalendarService.setupGoogle();
 
     @Autowired
@@ -81,15 +81,18 @@ public class EventService {
                 break;
             case "Outlook":
                 //post to outlook
+                System.out.println("Outlook");
                 break;
             case "Both":
                 //post to both
+                System.out.println("both");
                 break;
             case "None":
                 //post to neither
+                System.out.println("none");
                 break;
             default:
-                //error
+                System.out.println("unsuccessful");
         }
 
 

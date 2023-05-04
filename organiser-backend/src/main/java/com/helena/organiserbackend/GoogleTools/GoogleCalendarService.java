@@ -41,7 +41,7 @@ public class GoogleCalendarService {
      */
     private static final List<String> SCOPES =
             Collections.singletonList(CalendarScopes.CALENDAR_READONLY);
-    private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
+    private static final String CREDENTIALS_FILE_PATH = "/googleCredentials.json";
 
     @Autowired
     public GoogleCalendarService() {

@@ -2,6 +2,7 @@ package com.helena.organiserbackend.rowmapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -18,8 +19,8 @@ public class EventRowMapper implements RowMapper<Event> {
      */
     //TODO: create separate tables for reminders and attendees with foreign key in events table
 
-    private EventReminder[] createRemindersArray(Map<String, String>[] reminders){
-        EventReminder[] eventReminders = Arrays.stream(reminders).map(
+    private EventReminder[] createRemindersArray(Map<String, String>[] reminderArray){
+        EventReminder[] eventReminders = Arrays.stream(reminderArray).map(
                 reminder ->{
                     EventReminder eventReminder = new EventReminder();
                     eventReminder.setMethod(reminder.get("method"));
@@ -27,6 +28,7 @@ public class EventRowMapper implements RowMapper<Event> {
                     return eventReminder;
                 }
         ).toArray(EventReminder[]::new);
+
         return eventReminders;
     }
 

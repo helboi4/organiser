@@ -59,20 +59,41 @@ id BIGSERIAL PRIMARY KEY,
 user_id INTEGER REFERENCES users(id) NOT NULL,
 habit_id INTEGER REFERENCES habits(id) NOT NULL,
 completed BOOLEAN NOT NULL
-)
+);
+
+CREATE TABLE attendees(
+id BIGSERIAL PRIMARY KEY,
+user_id INTEGER REFERENCES users(id) NOT NULL,
+displayName VARCHAR(255),
+email VARCHAR(255) NOT NULL,
+optional BOOLEAN,
+organizer BOOLEAN,
+responseStatus BOOLEAN,
+self BOOLEAN,
+comment TEXT,
+additionalGuests INTEGER
+);
+
+CREATE TABLE reminders(
+id BIGSERIAL PRIMARY KEY,
+user_id INTEGER REFERENCES users(id) NOT NULL,
+method VARCHAR(255),
+minutes INTEGER
+);
 
 CREATE TABLE events (
 id BIGSERIAL PRIMARY KEY,
 user_id INTEGER REFERENCES users(id) NOT NULL,
 goal_id INTEGER REFERENCES goals(id),
-project_id REFERENCES projects(id),
+project_id INTEGER REFERENCES projects(id),
 title VARCHAR(255) NOT NULL,
 category VARCHAR(255),
 start_datetime TIMESTAMP NOT NULL,
 end_datetime TIMESTAMP NOT NULL,
 description TEXT,
-reminders hstore[],
-attendees hstore[],
+--here we store the foreign keys of the attendees and reminders
+reminders INTEGER[],
+attendees INTEGER[],
 platform VARCHAR(255),
 reccurrence VARCHAR(255)[],
 link VARCHAR(255),
