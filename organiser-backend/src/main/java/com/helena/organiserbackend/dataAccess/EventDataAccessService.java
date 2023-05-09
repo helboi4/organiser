@@ -4,6 +4,8 @@ import java.lang.reflect.Array;
 import java.util.List;
 import java.util.List;
 
+import com.google.api.services.calendar.model.EventAttendee;
+import com.google.api.services.calendar.model.EventReminder;
 import com.helena.organiserbackend.DAO.EventDAO;
 import com.helena.organiserbackend.model.Event;
 import com.helena.organiserbackend.rowmapper.EventRowMapper;
@@ -76,5 +78,55 @@ public class EventDataAccessService implements EventDAO {
                 SELECT * FROM events WHERE platform = ?
                 """;
         return jdbcTemplate.query(sql, new Object[]{platform}, new EventRowMapper());
+    }
+
+    @Override
+    public int postNewEvent(Event event) {
+        //sql query to post new event
+        String sql = """
+                INSERT INTO events (user_id, goal_id, project_id, title, description, category, start_datetime, 
+                end_datetime, link, platform, recurrence, location, reminders, attendees)
+                values(?, ?,?,?,?,?,?,?,?,?,?)
+                """;
+        return jdbcTemplate.update(sql, event.getUser_id(), event.getGoal_id(), event.getProject_id(), event.getTitle(),
+                event.getDescription(), event.getCategory(), event.getStart_datetime(), event.getEnd_datetime(),
+                event.getLink(), event.getPlatform(), event.getRecurrence(), event.getLocation(), event.getAttendees(),
+                event.getReminders());
+    }
+
+    @Override
+    public Integer[] postNewReminders(int event_id, int user_id, List<EventReminder> reminders) {
+        /*this method posts new reminders to the reminders table and returns the ids of the newly created reminders,
+        so they can be added to the event table
+         */
+        Integer[] idArray = reminders.stream().map(
+                reminder -> {
+                    String sql = """
+                            SELECT insert_reminder_and_return_id(?, ?, ?, ?)
+                            """;
+                    return jdbcTemplate.update(sql, event_id, user_id, reminder.getMethod(), reminder.getMinutes());
+                }
+        ).toArray(Integer[]::new);
+
+        return idArray;
+    }
+
+    @Override
+    public Integer[] postNewAttendees(int event_id, int user_id, List<EventAttendee> attendees) {
+        /*this method posts new attendees to the attendees table and returns the ids of the newly created attendees,
+        so they can be added to the event table
+         */
+
+        Integer[] idArray = attendees.stream().map(
+                attendee -> {
+                    String sql = """
+                            SELECT insert_attendee_and_return_id(?, ?, ?, ?, ?, ?, ?, ?, ?)""";)
+                    return jdbcTemplate.update(sql, event_id, user_id, attendee.getDisplayName(), attendee.getEmail(),
+                            attendee.getOptional(), attendee.getOrganizer(), attendee.getResponseStatus(),
+                            attendee.getSelf(), attendee.getComment(), attendee.getAdditionalGuests());
+                }
+        ).toArray(Integer[]::new);
+
+        return idArray;
     }
 }

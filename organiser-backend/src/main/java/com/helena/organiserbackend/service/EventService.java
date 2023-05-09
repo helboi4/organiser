@@ -62,7 +62,7 @@ public class EventService {
         return eventDAO.getEventsForUserByPlatform(platform_id);
     }
 
-    public void postNewEvent(Event event) {
+    public ResponseEntity<?> postNewEvent(Event event) {
         /*we need to do some logic here to
         1.check if the event is valid
         2.post event to relevant platform (google or outlook or both) using API
@@ -70,13 +70,18 @@ public class EventService {
         4.return response to front end
         5.handle errors
         **/
+
+        ResponseEntity<?> response = null;
+        String externalPlatformMessage = "";
+
         switch(event.getPlatform()){
             case "Google":
                 //post to google
                 try {
-                    ResponseEntity<?> response = postToGoogle(event);
+                    externalPlatformMessage = postToGoogle(event);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    response = ResponseEntity.internalServerError().body(e.getMessage());
+                    return response;
                 }
                 break;
             case "Outlook":
@@ -92,53 +97,58 @@ public class EventService {
                 System.out.println("none");
                 break;
             default:
-                System.out.println("unsuccessful");
+                response = ResponseEntity.badRequest().body("Invalid platform");
+                return response;
         }
+
+        //post to db
 
 
     }
 
-    private ResponseEntity<?> postToGoogle(Event event) throws Exception{
+    private String postToGoogle(Event event) throws Exception{
 
         if(googleCalendar == null){
-            ResponseEntity<?> response = ResponseEntity.internalServerError().body("Google Calendar not set up");
-            return response;
+            throw new Exception("Google calender set up failed");
         }
+        try {
+            com.google.api.services.calendar.model.Event googleEvent = new com.google.api.services.calendar.model.Event()
+                    .setSummary(event.getTitle())
+                    .setLocation(event.getLocation())
+                    .setDescription(event.getDescription());
+            DateTime startDateTime = new DateTime(event.getStart_datetime());
+            EventDateTime start = new EventDateTime()
+                    .setDateTime(startDateTime)
+                    .setTimeZone("Europe/London");
+            googleEvent.setStart(start);
 
-        com.google.api.services.calendar.model.Event googleEvent = new com.google.api.services.calendar.model.Event()
-                .setSummary(event.getTitle())
-                .setLocation(event.getLocation())
-                .setDescription(event.getDescription());
-        DateTime startDateTime = new DateTime(event.getStart_datetime());
-        EventDateTime start = new EventDateTime()
-                .setDateTime(startDateTime)
-                .setTimeZone("Europe/London");
-        googleEvent.setStart(start);
+            DateTime endDateTime = new DateTime(event.getEnd_datetime());
+            EventDateTime end = new EventDateTime()
+                    .setDateTime(endDateTime)
+                    .setTimeZone("Europe/London");
+            googleEvent.setEnd(end);
 
-        DateTime endDateTime = new DateTime(event.getEnd_datetime());
-        EventDateTime end = new EventDateTime()
-                .setDateTime(endDateTime)
-                .setTimeZone("Europe/London");
-        googleEvent.setEnd(end);
+            String[] recurrence = event.getRecurrence();
+            if (recurrence != null) {
+                googleEvent.setRecurrence(List.of(recurrence));
+            }
 
-        String[] recurrence = event.getRecurrence();
-        if (recurrence != null) {
-            googleEvent.setRecurrence(List.of(recurrence));
+            EventAttendee[] attendees = event.getAttendees();
+            if (attendees != null) {
+                googleEvent.setAttendees(Arrays.asList(attendees));
+            }
+
+            com.google.api.services.calendar.model.Event.Reminders reminders =
+                    new com.google.api.services.calendar.model.Event.Reminders()
+                            .setUseDefault(false)
+                            .setOverrides(Arrays.asList(event.getReminders()));
+            googleEvent.setReminders(reminders);
+
+            googleEvent = googleCalendar.events().insert("primary", googleEvent).execute();
+            return "Successfully posted to Google: " + googleEvent.getHtmlLink();
+        } catch (Exception e) {
+            throw new Exception("Failed to create Google event - please check your input");
         }
-
-        EventAttendee[] attendees = event.getAttendees();
-        if (attendees != null) {
-            googleEvent.setAttendees(Arrays.asList(attendees));
-        }
-
-        com.google.api.services.calendar.model.Event.Reminders reminders =
-                new com.google.api.services.calendar.model.Event.Reminders()
-                .setUseDefault(false)
-                .setOverrides(Arrays.asList(event.getReminders()));
-        googleEvent.setReminders(reminders);
-
-        googleEvent = googleCalendar.events().insert("primary", googleEvent).execute();
-        return ResponseEntity.ok("Successfully posted to Google: " + googleEvent.getHtmlLink());
 
     }
 

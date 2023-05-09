@@ -7,7 +7,7 @@ password VARCHAR(255) NOT NULL
 
 CREATE TABLE goals (
 id BIGSERIAL PRIMARY KEY,
-user_id INTEGER REFERENCES users(id) NOT NULL,
+user_id BIGINT REFERENCES users(id) NOT NULL,
 category VARCHAR(255),
 title VARCHAR(255) NOT NULL,
 Description TEXT,
@@ -18,8 +18,8 @@ date_completed TIMESTAMP
 
 CREATE TABLE projects (
 id BIGSERIAL PRIMARY KEY,
-user_id INTEGER REFERENCES users(id) NOT NULL,
-goal_id INTEGER REFERENCES goals(id),
+user_id BIGINT REFERENCES users(id) NOT NULL,
+goal_id BIGINT REFERENCES goals(id),
 category VARCHAR(255),
 title VARCHAR(255) NOT NULL,
 description TEXT,
@@ -32,9 +32,9 @@ status VARCHAR(255)
 
 CREATE TABLE tasks (
 id BIGSERIAL PRIMARY KEY,
-user_id INTEGER REFERENCES users(id),
-goal_id INTEGER REFERENCES goals(id),
-project_id INTEGER REFERENCES tasks(id) NOT NULL,
+user_id BIGINT REFERENCES users(id),
+goal_id BIGINT REFERENCES goals(id),
+project_id BIGINT REFERENCES tasks(id) NOT NULL,
 category VARCHAR(255),
 title VARCHAR(255) NOT NULL,
 description TEXT,
@@ -45,9 +45,9 @@ status VARCHAR(255)
 
 CREATE TABLE habits (
 id BIGSERIAL PRIMARY KEY,
-user_id INTEGER REFERENCES users(id) NOT NULL,
-goal_id INTEGER REFERENCES goals(id),
-project_id INTEGER REFERENCES projects(id),
+user_id BIGINT REFERENCES users(id) NOT NULL,
+goal_id BIGINT REFERENCES goals(id),
+project_id BIGINT REFERENCES projects(id),
 category VARCHAR(255),
 title VARCHAR(255) NOT NULL,
 description TEXT,
@@ -56,14 +56,15 @@ date_set TIMESTAMP
 
 CREATE TABLE habit_checks (
 id BIGSERIAL PRIMARY KEY,
-user_id INTEGER REFERENCES users(id) NOT NULL,
-habit_id INTEGER REFERENCES habits(id) NOT NULL,
+user_id BIGINT REFERENCES users(id) NOT NULL,
+habit_id BIGINT REFERENCES habits(id) NOT NULL,
 completed BOOLEAN NOT NULL
 );
 
 CREATE TABLE attendees(
 id BIGSERIAL PRIMARY KEY,
-user_id INTEGER REFERENCES users(id) NOT NULL,
+event_id BIGINT REFERENCES events(id) NOT NULL,
+user_id BIGINT REFERENCES users(id) NOT NULL,
 displayName VARCHAR(255),
 email VARCHAR(255) NOT NULL,
 optional BOOLEAN,
@@ -76,16 +77,17 @@ additionalGuests INTEGER
 
 CREATE TABLE reminders(
 id BIGSERIAL PRIMARY KEY,
-user_id INTEGER REFERENCES users(id) NOT NULL,
+user_id BIGINT REFERENCES users(id) NOT NULL,
+event_id BIGINT REFERENCES events(id) NOT NULL,
 method VARCHAR(255),
 minutes INTEGER
 );
 
 CREATE TABLE events (
 id BIGSERIAL PRIMARY KEY,
-user_id INTEGER REFERENCES users(id) NOT NULL,
-goal_id INTEGER REFERENCES goals(id),
-project_id INTEGER REFERENCES projects(id),
+user_id BIGINT REFERENCES users(id) NOT NULL,
+goal_id BIGINT REFERENCES goals(id),
+project_id BIGINT REFERENCES projects(id),
 title VARCHAR(255) NOT NULL,
 category VARCHAR(255),
 start_datetime TIMESTAMP NOT NULL,
@@ -102,8 +104,8 @@ location VARCHAR(255)
 
 CREATE TABLE quickticks (
 id BIGSERIAL PRIMARY KEY,
-user_id INTEGER REFERENCES users(id) NOT NULL,
-goal_id INTEGER REFERENCES goals(id),
+user_id BIGINT REFERENCES users(id) NOT NULL,
+goal_id BIGINT REFERENCES goals(id),
 category VARCHAR(255),
 title VARCHAR(255) NOT NULL
 );
